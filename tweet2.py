@@ -1,5 +1,4 @@
 import tweepy
-import unicodedata
 import ppsing #modulos de pre procesado
 from gensim.models import Word2Vec
 from unipath import Path
@@ -37,7 +36,8 @@ def get_all_tweets(num_tweets):
             oldest=new_tweets[-1].id-1 
             
             #por cada iteracion agrega las frases nuevas del tweets
-            alltweets.extend(ppsing.processing(new_tweets[0].full_text))
+            for tweet in new_tweets:
+                alltweets.extend(ppsing.processing(tweet.full_text))
 
             counter += 1
     print(new_tweets[0].full_text)

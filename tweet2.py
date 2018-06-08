@@ -48,6 +48,7 @@ if __name__ == '__main__':
 
     num_tweets=int(input('ingrese cantidad de tweets:'))
     tweets=get_all_tweets(num_tweets)
-    print(tweets)    
+    print(tweets)
+    print(ppsing.frec_words)   
 
 

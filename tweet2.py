@@ -39,8 +39,10 @@ def get_all_tweets(num_tweets):
             for tweet in new_tweets:
                 alltweets.extend(ppsing.processing(tweet.full_text))
 
+
             counter += 1
-    print(new_tweets[0].full_text)
+            new_tweets=[]
+    #print(new_tweets[0].full_text)
     return alltweets
 
 if __name__ == '__main__':
@@ -48,7 +50,6 @@ if __name__ == '__main__':
 
     num_tweets=int(input('ingrese cantidad de tweets:'))
     tweets=get_all_tweets(num_tweets)
+    ppsing.save_dict()   
     print(tweets)
-    print(ppsing.frec_words)   
-
 

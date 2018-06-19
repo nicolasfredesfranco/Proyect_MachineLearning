@@ -58,14 +58,14 @@ def save_data (tweets,oldest):
     
     #Leer datos de tweets
     try:    
-        infile = open('dataTweets2','rb')
+        infile = open('dataTweets','rb')
         data_tweet = ppsing.pickle.load(infile)
         infile.close()   
     except FileNotFoundError:
         data_tweet=list()
 
     data_tweet.extend(tweets)
-    outfile = open('dataTweets2','wb')
+    outfile = open('dataTweets','wb')
     ppsing.pickle.dump(data_tweet,outfile)
     outfile.close()
 

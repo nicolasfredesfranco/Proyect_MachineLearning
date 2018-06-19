@@ -11,7 +11,7 @@ stop_words=['de', 'la', 'que', 'el', 'en', 'y', 'a', 'los', 'del', 'se', 'las', 
 
 
 #se carga el diccionario si no existe crea uno nuevo
-name_dict='dic1'
+name_dict='frecWords'
 frec_words=dict()
 try:
     infile = open(name_dict,'rb')

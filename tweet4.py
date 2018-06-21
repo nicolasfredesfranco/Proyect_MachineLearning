@@ -53,28 +53,11 @@ def get_all_tweets(cant_tweets,oldest):
     return alltweets,oldest
 
 
-def save_data (tweets,oldest):
-
-    
-    #Leer datos de tweets
-    try:    
-        infile = open('dataTweets','rb')
-        data_tweet = ppsing.pickle.load(infile)
-        infile.close()   
-    except FileNotFoundError:
-        data_tweet=list()
-
-    data_tweet.extend(tweets)
-    outfile = open('dataTweets','wb')
-    ppsing.pickle.dump(data_tweet,outfile)
-    outfile.close()
+def save_oldest (oldest):
 
     outfile = open('oldest','wb')
     ppsing.pickle.dump(oldest,outfile)
     outfile.close()
-
-    print('guardado\n')
-
 
 #main
 if __name__ == '__main__':
@@ -83,6 +66,8 @@ if __name__ == '__main__':
     #indica cantidad de tweets en qu se bajara
     cant_tweets=int(input('cantidad de frases:'))   
     largo = 0
+
+    # abrir oldest anterior
     try:
         infile = open('oldest','rb')
         oldest= ppsing.pickle.load(infile)
@@ -97,14 +82,19 @@ if __name__ == '__main__':
         len_tweets=len(tweets)
 
         if (len_tweets != 0):
-            save_data(tweets,oldest)
+            ppsing.save_data(tweets)
+            save_oldest(oldest)
             ppsing.save_dict()
-            largo += len(tweets)
+            largo += len_tweets
+            print('guardado...')
 
         print(largo)
 
+        # si se cumple que largo es mayor
         if (largo >= cant_tweets):
             break
+        
+        # si no, duerme
         else:
             print('dormir...')
             sleep(16*60); # duerme 16 minutos

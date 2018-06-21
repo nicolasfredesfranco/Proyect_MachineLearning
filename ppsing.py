@@ -158,4 +158,20 @@ def save_dict(min_count=1,name=name_dict):
 
 
 
+def save_data (frases):
+
+    
+    #Leer datos de tweets
+    try:    
+        infile = open('dataTweets','rb')
+        data = pickle.load(infile)
+        infile.close()   
+    except FileNotFoundError:
+        data=list()
+
+    data.extend(frases)
+    outfile = open('dataTweets','wb')
+    pickle.dump(data,outfile)
+    outfile.close()
+
 

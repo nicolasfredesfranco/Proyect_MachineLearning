@@ -26,10 +26,16 @@ if __name__ == '__main__':
         tema=wk.random(1)
 
         if tema not in lwiki:
-            lwiki.append(tema)
-            new_page=wk.WikipediaPage(tema)
-            frases.extend(ppsing.processing(new_page.content))
-            cant+=1
+            try:
+            
+                new_page=wk.WikipediaPage(tema)
+                lwiki.append(tema)
+                frases.extend(ppsing.processing(new_page.content))
+                cant+=1
+            except:
+                print('ne')
+
+
     # guardar            
     ppsing.save_data(frases)
     ppsing.save_dict()

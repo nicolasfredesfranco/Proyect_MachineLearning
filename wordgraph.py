@@ -13,8 +13,8 @@ from scipy.spatial.distance import euclidean
 
 def T_syn_ant(vocab):
     n = len(vocab)
-    T_syn = [[0]*n]*n
-    T_ant = [[0]*n]*n  
+    T_syn = [[0] * n for i in range (n)]
+    T_ant = [[0] * n for i in range (n)]  
     count = 0
     for i in vocab:
         syn,ant = ppsing.sin_ant(i)

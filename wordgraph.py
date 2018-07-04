@@ -24,7 +24,6 @@ def T_syn_ant(vocab,n,T_syn,T_ant):
     
 def W_init(modelo,vocab,n,matrix_0,eps,sig):
     W=matrix_0
-    print(W[0][0])
     for i in range(n):
         for j in range(i+1,n):    
             dis = euclidean(modelo[vocab[i]],modelo[vocab[j]])

@@ -27,18 +27,16 @@ def T_syn_ant(vocab):
         count +=1
     return np.array(T_syn,dtype='float'),np.array(T_ant,dtype='float')
     
-def W_init(modelo,vocab,eps,sig,diag=0):
+def W_init(modelo,vocab,eps,sig):
     n = len(vocab)
-    W = [[0]*n]*n
+    W=[[0] * n for i in range (n)]
     for i in range(n):
-        for j in range(i+1,n):
+        for j in range(i+1,n):    
             dis = euclidean(modelo[vocab[i]],modelo[vocab[j]])
-            dis_exp = np.exp(np.divide(np.power(dis,2.0),-sig)) 
+            dis_exp = np.exp(np.divide(np.power(dis,2.0),-sig))
             if(dis_exp > eps):
                 W[i][j]= dis_exp
-                W[j][i]= dis_exp
-    for i in range(n):
-        W[i][i]= diag
+                W[j][i]= dis_exp             
     return np.array(W,dtype='float')
                 
 def W(modelo,gama,b_ant,b_syn,eps,sig):
@@ -48,6 +46,8 @@ def W(modelo,gama,b_ant,b_syn,eps,sig):
     W_final = gama*W + b_ant*T_ant*W + b_syn*T_syn*W
     return W_final
                 
-        
-    
-                            
+def matrix(W,n):
+    W=W[0:3]
+    for i in range(len(W)):
+        W[i]=W[i][0:3]
+    return W                        

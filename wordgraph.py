@@ -15,16 +15,14 @@ def T_syn_ant(vocab):
     n = len(vocab)
     T_syn = [[0] * n for i in range (n)]
     T_ant = [[0] * n for i in range (n)]  
-    count = 0
-    for i in vocab:
-        syn,ant = ppsing.sin_ant(i)
+    for i in range(n):
+        syn,ant = ppsing.sin_ant(vocab[i])
         for j in syn:
-            try: T_syn[count][vocab.index(j)]=1
+            try: T_syn[i][vocab.index(j)]=1
             except: continue 
         for j in ant:
-            try: T_ant[count][vocab.index(j)]=-1
+            try: T_ant[i][vocab.index(j)]=-1
             except: continue 
-        count +=1
     return np.array(T_syn,dtype='float'),np.array(T_ant,dtype='float')
     
 def W_init(modelo,vocab,eps,sig):
@@ -39,10 +37,9 @@ def W_init(modelo,vocab,eps,sig):
                 W[j][i]= dis_exp             
     return np.array(W,dtype='float')
                 
-def W(modelo,gama,b_ant,b_syn,eps,sig):
-    vocab =list(modelo.wv.vocab.keys())
+def W(modelo,vocab,gama,b_ant,b_syn,eps,sig):
     T_syn,T_ant = T_syn_ant(vocab)
-    W = W_init(modelo,vocab,eps,sig,0)
+    W = W_init(modelo,vocab,eps,sig)
     W_final = gama*W + b_ant*T_ant*W + b_syn*T_syn*W
     return W_final
                 

@@ -9,6 +9,19 @@ def _setdiag_dense(A, d):
 
 def signed_laplacian(affinity):
 
+    """
+    Funcion que calcula el signed laplaciano.
+
+    L=D-W
+    D(ij):sum_{j=1}^{n}|wij|
+
+    entradas:
+        affinity: matriz de afinidad del grafo
+        
+    salidas:
+        m: Signed Laplaciano.
+        w: matriz D.
+    """
     m = np.array(affinity,dtype='float')
     np.fill_diagonal(m, 0)
     w=np.absolute(m)
@@ -28,7 +41,7 @@ def signal_spectral_embedding(affinity,random_state=None,n_clusters=2,eigen_tol=
     affinity: Matriz de pesos del grafo.    
     random_state: fija la semilla para check random state.
     n_cluster:cantidad de clusters.
-    tol: se requiere para eigsh.
+    tol:tolerancia para eigsh.
     """
     random_state=check_random_state(random_state)
 

@@ -2,13 +2,14 @@
 """
 Created on Tue Jul  3 23:59:23 2018
 
-@author: Nicolás I. Fredes Franco
 """
 from time import time
 from ppsing import sin_ant
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_kernels
 import pickle
+
+
 
 def T_syn_ant(vocab):
     """ Funcion que calcula las matrices de antonimos y sinonimos.
@@ -38,28 +39,68 @@ def T_syn_ant(vocab):
     return T_syn,T_ant
 
 
-def kernel_gaussean (X,Y,sigma=1,epsilon=0.0):
+def kernel_gaussean (X,Y,gamma=1,epsilon=0.0):
 
     dif=X-Y
-    out=np.exp(-np.dot(dif,dif)/sigma)
+    out=np.exp(-np.dot(dif,dif)*gamma)
     if (out<epsilon):
         out=0.0
     return out
 
 
 
-def W_init(X,epsilon,sigma): 
+def W_init(X,sigma,epsilon): 
 
+    """
+    hay varias formas para implementar el calculode W.
+    uno es con cosine similarity.
+    otro es distance mahalanobis, revizar
+    """
     params={}
     params['epsilon']=epsilon
-    params['sigma']=sigma
+    params['gamma']=1/sigma
     matrix=pairwise_kernels(X,metric=kernel_gaussean,n_jobs=-1,**params)                 
     return matrix
+
+
                 
 def W(W,T_ant,T_syn,gama,b_ant,b_syn):
 
     W_final = gama*W + b_ant*T_ant*W + b_syn*T_syn*W
     return W_final
+
+
+
+
+def cont_neg(W):
+    """ 
+    Esta funcion cuenta enlaces negativos de la matriz W
+    """
+    cont=0
+    for i in range(len(W)):
+        for j in range(i+1,len(W)):
+            if(W[i][j]<0.0):
+                print(i,'-',j,' y ',j,'-',i)
+                cont +=1
+    return cont
+
+
+def cont_pos(W):
+    """ 
+    Esta funcion cuenta enlaces positivos de la matriz W
+    """
+    cont=0
+    for i in range(len(W)):
+        for j in range(i+1,len(W)):
+            if(W[i][j] > 0.0):
+                print(i,'-',j,' y ',j,'-',i)
+                cont +=1 
+
+    return cont
+
+
+# de aca no se ocupan
+
              
 def time_f(W,*args):
     tiempo_inicial = time()
@@ -69,35 +110,16 @@ def time_f(W,*args):
     print('Se demoro ',tiempo_ejecucion/60,' minutos')
     return W_final,W,T_syn,T_ant
 
-def cont_neg(W):
-    cont=0
-    for i in range(len(W)):
-        for j in range(i+1,len(W)):
-            if(W[i][j]<0.0):
-                print(i,'-',j,' y ',j,'-',i)
-                cont +=1
-    print('Hay ',cont,' enlaces negativos')
 
-def cont_pos(W):
-    cont=0
-    for i in range(len(W)):
-        for j in range(i+1,len(W)):
-            if(W[i][j] > 0.0):
-                print(i,'-',j,' y ',j,'-',i)
-                cont +=1 
-    print('Hay ',cont,' enlaces positivos')
         
-def save_matrix(W_final,W,T_syn,Tant):
-    X=W_final,W,T_syn,Tant
-    outfile=open('matrices','wb')
+def save_matrix(X,name):
+    outfile=open(name,'wb')
     pickle.dump(X,outfile)
     outfile.close()
     
-def load_matrix():
-    infile=open('matrices','rb')
+def load_matrix(name):
+    infile=open(name,'rb')
     X=pickle.load(infile)
-    W_final,W,T_syn,Tant = X
     infile.close()
-    return W_final,W,T_syn,Tant
-        
+    return X        
                      

@@ -57,7 +57,7 @@ def links_clusters (affinity,labels,senti_labels=None):
                  'neg'(links-)
                  'pos'(links+) 
 
-        ejemplo: links[1]['vol']--> volumen del cluster 1.
+        ejemplo: links[1]['vol']--> volumen del cluster 1
         La complejidad es n
     """    
 
@@ -90,6 +90,55 @@ def links_clusters (affinity,labels,senti_labels=None):
 
 
 
+
+
+def sentence_to_graph (affinity,vocab,sentences,links):
+    """
+    Calcula un diccionario, que guarda los siguientes funcionales:
+        S+(A,Ci)=(links+(A,Ci)+links-(A,Ci^c))/(vol(A)+vol(Ci))
+        S-(A,Ci)=(links-(A,Ci)+links+(A,Ci^c))/(vol(A)+vol(Ci))
+        Entradas:
+            affinity: matriz de afinidad del grafo.
+            vocab: vocabulario del modelo.
+            sentences: lista de palabras.
+            links: diccionario otorgado por links_clusters
+        Salidas:
+            functional: diccionario, con labels como llave y que guarda una lista con los funcionales.
+
+        Ejemplo: functional[C_i]=[S+(A,C_i),S-(A,C_i)]
+    """
+    functional = dict()
+    vol_A=0
+
+    n=len(links.keys())
+    X=np.array([[0,0]]*len(links.keys()))
+    # obtiene indices de las palabras y volumen de la frase A
+    for frase in sentences:
+        try:
+            i=vocab.index(frase)         
+            vol_A=vol_A+np.absolute(affinity[:,i]).sum(axis=0)
+
+            for label_1 in links:
+
+                if (label_1 not in functional.keys()):
+                    functional[label_1]=[0,0]
+                
+                for label_2 in links:
+                    if (label_1==label_2):
+                        functional[label_1][0]+=links[label_1]['pos'][i]
+                        functional[label_1][1]+=links[label_1]['neg'][i]
+
+                    else:
+                        functional[label_1][0]+=links[label_2]['neg'][i]
+                        functional[label_1][1]+=links[label_2]['pos'][i]
+        except:
+            print(i)
+
+    for label in functional:
+        functional[label][0]/=(vol_A+links[label]['vol'])
+        functional[label][1]/=(vol_A+links[label]['vol'])  
+
+    return functional
 
 
 

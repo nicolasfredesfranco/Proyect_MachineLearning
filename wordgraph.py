@@ -39,27 +39,38 @@ def T_syn_ant(vocab):
     return T_syn,T_ant
 
 
-def kernel_gaussean (X,Y,gamma=1,epsilon=0.0):
+def kernel_gaussean (X,Y,sigma=1,epsilon=0.0):
 
     dif=X-Y
-    out=np.exp(-np.dot(dif,dif)*gamma)
+    out=np.exp(-np.dot(dif,dif)/sigma)
     if (out<epsilon):
         out=0.0
     return out
 
+#funcion de metricas
+KERNELS={
+    'gaus_e':kernel_gaussean,
+    'gaus':'rbf',
+    'cosine':'cosine',
+    'mah':0    }
 
 
-def W_init(X,sigma,epsilon): 
+
+
+def W_init(X,kernel='gaus',**kwds ): 
 
     """
     hay varias formas para implementar el calculode W.
     uno es con cosine similarity.
     otro es distance mahalanobis, revizar
     """
-    params={}
-    params['epsilon']=epsilon
-    params['gamma']=1/sigma
-    matrix=pairwise_kernels(X,metric=kernel_gaussean,n_jobs=-1,**params)                 
+    try:
+        kernel_func=KERNELS[kernel]
+    except:
+        print('metrica no correspondiente')
+        return 1
+
+    matrix=pairwise_kernels(X,metric=kernel_func,filter_params=True,n_jobs=-1,**kwds)                 
     return matrix
 
 

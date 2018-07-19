@@ -39,10 +39,10 @@ def T_syn_ant(vocab):
     return T_syn,T_ant
 
 
-def kernel_gaussean (X,Y,sigma=1,epsilon=0.0):
+def kernel_gaussean (X,Y,gamma=1,epsilon=0.0):
 
     dif=X-Y
-    out=np.exp(-np.dot(dif,dif)/sigma)
+    out=np.exp(-np.dot(dif,dif)*gamma)
     if (out<epsilon):
         out=0.0
     return out

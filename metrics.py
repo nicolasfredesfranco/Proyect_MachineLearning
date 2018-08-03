@@ -22,7 +22,7 @@ def metric(T_ant,T_sin,labels):
     return cost
 
 
-def show_cluster (vocab,labels,word ):
+def show_cluster (vocab,labels,word):
     """ entrega el cluster(palabras) donde se encuentra
         la palbra word.
     """   
@@ -132,18 +132,57 @@ def sentence_to_graph (affinity,vocab,sentences,links):
                         functional[label_1][0]+=links[label_2]['neg'][i]
                         functional[label_1][1]+=links[label_2]['pos'][i]
         except:
-            print(i)
+            print(frase)
 
     for label in functional:
-        functional[label][0]/=(vol_A+links[label]['vol'])
+        functional[label][0]/=(vol_A+links[label]['vol']) 
         functional[label][1]/=(vol_A+links[label]['vol'])  
 
     return functional
 
+def distribution(clusters):
+    """Entrega un array con la cantidad de elementos en cada cluster
+    """
+    n =np.max(clusters)
+    cant_k=[0]*n
+    for i in clusters:
+        cant_k[i-1] += 1
+    return cant_k 
 
+  
+def position(functional):
+    """A partir de functional, obtiene el cluster mejor representa a una frase.
+    """
+    n = np.max(list(functional.keys()))
+    list_neg = [0]*n
+    list_pos = [0]*n
+    for i in functional.keys():
+        for j in functional.keys():
+            if(functional[j][0] >= functional[i][0]):
+                list_pos[i-1] += 1
+            if(functional[j][1] >= functional[i][1]):
+                list_neg[i-1] += 1
 
+    result = np.array(list_neg) - np.array(list_pos)
 
+    return np.argmax(result)
+ 
+def dict_cluster(vocab, clusters):
+    """Crea dicionario con keys = cluster y value = lista de palabras del cluster
+    """
+    dic = {}
+    for i in range(len(clusters)):
+        try:
+            dic[clusters[i]].append(vocab[i])
+        except:
+            dic[clusters[i]]=[vocab[i]]
 
+    return dic
 
+def cluster_of_word(vocab,clusters,word):
+    """Dice a que cluster pertenece la palabra
+    """
+    indice = vocab.index(word)
+    return clusters[indice]
 
 

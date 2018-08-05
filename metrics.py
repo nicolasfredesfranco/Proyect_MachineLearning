@@ -95,8 +95,8 @@ def links_clusters (affinity,labels,senti_labels=None):
 def sentence_to_graph (affinity,vocab,sentences,links):
     """
     Calcula un diccionario, que guarda los siguientes funcionales:
-        S+(A,Ci)=(links+(A,Ci)+links-(A,Ci^c))/(vol(A)+vol(Ci))
-        S-(A,Ci)=(links-(A,Ci)+links+(A,Ci^c))/(vol(A)+vol(Ci))
+        S+(A,Ci)=links+(A,Ci)/vol(Ci)+links-(A,Ci^c)/vol(Ci^c)
+        S-(A,Ci)=links-(A,Ci)/vol(Ci)+links+(A,Ci^c)/vol(Ci^c)
         Entradas:
             affinity: matriz de afinidad del grafo.
             vocab: vocabulario del modelo.
@@ -108,7 +108,7 @@ def sentence_to_graph (affinity,vocab,sentences,links):
         Ejemplo: functional[C_i]=[S+(A,C_i),S-(A,C_i)]
     """
     functional = dict()
-    vol_A=0
+    #vol_A=0
 
     n=len(links.keys())
     X=np.array([[0,0]]*len(links.keys()))
@@ -116,7 +116,7 @@ def sentence_to_graph (affinity,vocab,sentences,links):
     for frase in sentences:
         try:
             i=vocab.index(frase)         
-            vol_A=vol_A+np.absolute(affinity[:,i]).sum(axis=0)
+            #vol_A=vol_A+np.absolute(affinity[:,i]).sum(axis=0)
 
             for label_1 in links:
 
@@ -135,8 +135,15 @@ def sentence_to_graph (affinity,vocab,sentences,links):
             print(frase)
 
     for label in functional:
-        functional[label][0]/=(vol_A+links[label]['vol']) 
-        functional[label][1]/=(vol_A+links[label]['vol'])  
+        functional[label][0]/=links[label]['vol']
+        
+        # calcular volumen del complemento de label
+        vol_c=0.0
+        for label_2 in functional:
+        	if (label != label_2):
+        		volc_c += links[label_2]['vol']
+        
+        functional[label][1]/=vol_c 
 
     return functional
 

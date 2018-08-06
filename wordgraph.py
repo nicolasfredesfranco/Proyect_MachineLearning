@@ -47,12 +47,17 @@ def kernel_gaussean (X,Y,gamma=1,epsilon=0.0):
         out=0.0
     return out
 
+def kernel_mahalanobis (X,Y,inv_cov):
+    mah = sp.mahalanobis(X,Y,inv_cov)
+    
+    return mah
+
 #funcion de metricas
 KERNELS={
     'gaus_e':kernel_gaussean,
     'gaus':'rbf',
     'cosine':'cosine',
-    'mah':0    }
+    'mah':kernel_mahalanobis }
 
 
 

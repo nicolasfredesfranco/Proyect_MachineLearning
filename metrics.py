@@ -74,25 +74,28 @@ def links_clusters (affinity,labels,senti_labels=None):
             if etiqueta not in links.keys():
                 links[etiqueta]=dict()
                 X=np.absolute(affinity[:,i])
-                links[etiqueta]['vol']=X.sum(axis=0)
-                links[etiqueta]['neg']=0.5*(X-affinity[:,i])
-                links[etiqueta]['pos']=0.5*(X+affinity[:,i])
+                X_neg=0.5*(X-affinity[:,i])
+                X_pos=0.5*(X+affinity[:,i])
+                links[etiqueta]['c_pos']=np.sign(X_pos)
+                links[etiqueta]['c_neg']=np.sign(X_neg)
+                links[etiqueta]['neg']=X_neg
+                links[etiqueta]['pos']=X_pos
 
             else:
                         
                 X=np.absolute(affinity[:,i])
-                links[etiqueta]['vol']=links[etiqueta]['vol']+X.sum(axis=0)
-                links[etiqueta]['neg']=links[etiqueta]['neg']+0.5*(X-affinity[:,i])
-                links[etiqueta]['pos']=links[etiqueta]['pos']+0.5*(X+affinity[:,i])
+                X_neg=0.5*(X-affinity[:,i])
+                X_pos=0.5*(X+affinity[:,i])
+                links[etiqueta]['c_pos']+=np.sign(X_pos)
+                links[etiqueta]['c_neg']+=np.sign(X_neg)
+                links[etiqueta]['neg']+=X_neg
+                links[etiqueta]['pos']+=X_pos
     
     return links
 
 
 
-
-
-
-def sentence_to_graph (affinity,vocab,sentences,links):
+def simCluster (affinity,vocab,sentences,links):
     """
     Calcula un diccionario, que guarda los siguientes funcionales:
         S+(A,Ci)=links+(A,Ci)/vol(Ci)+links-(A,Ci^c)/vol(Ci^c)
@@ -110,42 +113,57 @@ def sentence_to_graph (affinity,vocab,sentences,links):
     functional = dict()
     #vol_A=0
 
-    n=len(links.keys())
+    cant_a=0
     X=np.array([[0,0]]*len(links.keys()))
     # obtiene indices de las palabras y volumen de la frase A
     for frase in sentences:
         try:
             i=vocab.index(frase)         
-            #vol_A=vol_A+np.absolute(affinity[:,i]).sum(axis=0)
+            
+
 
             for label_1 in links:
 
                 if (label_1 not in functional.keys()):
-                    functional[label_1]=[0,0]
+                    #lista de enlaces l_mas, l_menos, l_mas_c,l_menos_c
+                    functional[label_1]=([0,0],[0,0],[0,0],[0,0])
                 
                 for label_2 in links:
                     if (label_1==label_2):
-                        functional[label_1][0]+=links[label_1]['pos'][i]
-                        functional[label_1][1]+=links[label_1]['neg'][i]
+                    	# suma de pesos totales de la palabra i, con todas las del cluster
+                        functional[label_1][0][0]+=links[label_1]['pos'][i]
+                        functional[label_1][1][0]+=links[label_1]['neg'][i]
+                        # suma cantitades de enlaces positivos y negativos de oracion
+                        functional[label_1][0][1]+=links[label_1]['c_pos'][i]
+                        functional[label_1][1][1]+=links[label_1]['c_neg'][i]
 
                     else:
-                        functional[label_1][0]+=links[label_2]['neg'][i]
-                        functional[label_1][1]+=links[label_2]['pos'][i]
+                        functional[label_1][2][0]+=links[label_2]['pos'][i]
+                        functional[label_1][3][0]+=links[label_2]['neg'][i]
+                        #sumar cantidades de enlaces positivos y negativos de la oracion
+                        functional[label_1][2][1]+=links[label_2]['c_pos'][i]
+                        functional[label_1][3][1]+=links[label_2]['c_neg'][i]
         except:
             print(frase)
 
+    output=dict()
     for label in functional:
-        functional[label][0]/=links[label]['vol']
+        cant_pos_c=0
+        cant_neg_c=0
         
-        # calcular volumen del complemento de label
-        vol_c=0.0
-        for label_2 in functional:
-        	if (label != label_2):
-        		volc_c += links[label_2]['vol']
-        
-        functional[label][1]/=vol_c 
+        if (functional[label][0][1]==0):
+            functional[label][0][1]=1
+        if (functional[label][1][1]==0):
+            functional[label][1][1]=1
+        if (functional[label][2][1]==0):
+            functional[label][2][1]=1
+        if (functional[label][3][1]==0):
+            functional[label][3][1]=1
 
-    return functional
+        output[label]=functional[label][0][0]/functional[label][0][1]+functional[label][3][0]/functional[label][3][1]
+        output[label]-=functional[label][1][0]/functional[label][1][1]+functional[label][2][0]/functional[label][2][1]
+    return output
+
 
 def distribution(clusters):
     """Entrega un array con la cantidad de elementos en cada cluster
@@ -157,22 +175,7 @@ def distribution(clusters):
     return cant_k 
 
   
-def position(functional):
-    """A partir de functional, obtiene el cluster mejor representa a una frase.
-    """
-    n = np.max(list(functional.keys()))
-    list_neg = [0]*n
-    list_pos = [0]*n
-    for i in functional.keys():
-        for j in functional.keys():
-            if(functional[j][0] >= functional[i][0]):
-                list_pos[i-1] += 1
-            if(functional[j][1] >= functional[i][1]):
-                list_neg[i-1] += 1
 
-    result = np.array(list_neg) - np.array(list_pos)
-
-    return np.argmax(result)
  
 def dict_cluster(vocab, clusters):
     """Crea dicionario con keys = cluster y value = lista de palabras del cluster
@@ -191,5 +194,29 @@ def cluster_of_word(vocab,clusters,word):
     """
     indice = vocab.index(word)
     return clusters[indice]
+
+
+def cluster_to_list(vocab,clusters,words):
+
+    out=dict()
+    for i in words:
+        out[i]=cluster_of_word(vocab,clusters,i)
+
+    return out
+
+
+def map_sentiment(func,sentiments):
+    out=dict()
+    for sentiment in sentiments:
+        cant=0
+        suma=0
+        for i in sentiments[sentiment]:
+            cant+=1
+            suma+=func[i]
+        out[sentiment]=suma/cant
+    return out
+
+
+
 
 

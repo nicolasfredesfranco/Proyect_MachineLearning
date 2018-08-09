@@ -17,7 +17,12 @@ def senti_tweet(affinity,vocab,links,class_clusters,tweet,mode='manual'):
 	if(mode=='manual'):
 		tweet_pp = ptext(tweet)
 	#elif(mode=='URL'):
-		#agregar codigo
+		"""AGREGAR CODIGO: 
+						bajar tweet desde tweepy por medio de 
+						la URL y asignarselo a la variable tweet 
+		"""
+		#tweet_pp = ptext(tweet)
+		  
 	else: 
 		print('Mode no existente')
 		return

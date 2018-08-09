@@ -129,7 +129,7 @@ def simCluster (affinity,vocab,sentences,links):
                     functional[label_1]=([0,0],[0,0],[0,0],[0,0])
                 
                 for label_2 in links:
-                    if (label_1==label_2):
+                    if (label_1==label_2): 
                         # suma de pesos totales de la palabra i, con todas las del cluster
                         functional[label_1][0][0]+=links[label_1]['pos'][i]
                         functional[label_1][1][0]+=links[label_1]['neg'][i]
@@ -144,7 +144,8 @@ def simCluster (affinity,vocab,sentences,links):
                         functional[label_1][2][1]+=links[label_2]['c_pos'][i]
                         functional[label_1][3][1]+=links[label_2]['c_neg'][i]
         except:
-            print(frase)
+            continue
+            #print(frase)
 
     output=dict()
     for label in functional:

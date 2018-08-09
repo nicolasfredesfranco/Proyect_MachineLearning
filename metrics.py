@@ -11,7 +11,7 @@ def metric(T_ant,T_sin,labels):
     n=len(T_ant)
     cost=0
     for i in range(n):
-        for j in range(i+1,n):
+        for j in range(i+1,n): 
             if(T_ant[i,j]<0.0):
                 if (labels[i]==labels[j]):
                     cost+=1
@@ -130,7 +130,7 @@ def simCluster (affinity,vocab,sentences,links):
                 
                 for label_2 in links:
                     if (label_1==label_2):
-                    	# suma de pesos totales de la palabra i, con todas las del cluster
+                        # suma de pesos totales de la palabra i, con todas las del cluster
                         functional[label_1][0][0]+=links[label_1]['pos'][i]
                         functional[label_1][1][0]+=links[label_1]['neg'][i]
                         # suma cantitades de enlaces positivos y negativos de oracion
@@ -148,20 +148,22 @@ def simCluster (affinity,vocab,sentences,links):
 
     output=dict()
     for label in functional:
-        cant_pos_c=0
-        cant_neg_c=0
+        cant_0_1 = 1
+        cant_1_1 = 1
+        cant_2_1 = 1
+        cant_3_1 = 1
         
-        if (functional[label][0][1]==0):
-            functional[label][0][1]=1
-        if (functional[label][1][1]==0):
-            functional[label][1][1]=1
-        if (functional[label][2][1]==0):
-            functional[label][2][1]=1
-        if (functional[label][3][1]==0):
-            functional[label][3][1]=1
+        if (functional[label][0][1]!=0):
+            cant_0_1 = functional[label][0][1]
+        if (functional[label][1][1]!=0):
+            cant_1_1 = functional[label][1][1]
+        if (functional[label][2][1]!=0):
+            cant_2_1 = functional[label][2][1]
+        if (functional[label][3][1]!=0):
+            cant_3_1 = functional[label][3][1]
 
-        output[label]=functional[label][0][0]/functional[label][0][1]+functional[label][3][0]/functional[label][3][1]
-        output[label]-=functional[label][1][0]/functional[label][1][1]+functional[label][2][0]/functional[label][2][1]
+        output[label]=(functional[label][0][0]/cant_0_1)+(functional[label][3][0]/cant_3_1)
+        output[label]-=((functional[label][1][0]/cant_1_1)+(functional[label][2][0]/cant_2_1))   
     return output
 
 
@@ -175,10 +177,26 @@ def distribution(clusters):
     return cant_k 
 
   
+def position(functional):
+    """A partir de functional, obtiene el cluster mejor representa a una frase.
+    """
+    n = np.max(list(functional.keys()))
+    list_neg = [0]*n
+    list_pos = [0]*n
+    for i in functional.keys():
+        for j in functional.keys():
+            if(functional[j][0] >= functional[i][0]):
+                list_pos[i-1] += 1
+            if(functional[j][1] >= functional[i][1]):
+                list_neg[i-1] += 1
 
+    result = np.array(list_neg) - np.array(list_pos)
+
+    return np.argmax(result)
  
 def dict_cluster(vocab, clusters):
-    """Crea dicionario con keys = cluster y value = lista de palabras del cluster
+    """Crea dicionario con keys = cluster 
+        y value = lista de palabras del cluster.
     """
     dic = {}
     for i in range(len(clusters)):
@@ -190,19 +208,50 @@ def dict_cluster(vocab, clusters):
     return dic
 
 def cluster_of_word(vocab,clusters,word):
-    """Dice a que cluster pertenece la palabra
+    """Dice a que cluster pertenece a la palabra word.
     """
     indice = vocab.index(word)
     return clusters[indice]
 
+def cluster_of_list(vocab,clusters,words):
+    """word: lista de palabras
+        Recibe una lista de palabras y entrega una lista 
+        con los clusters a los que pertenecen dichas palabras.
+    """
+    n = len(words)
+    out = [0]*n
+    for i in range(n):
+        out[i] = cluster_of_word(vocab,clusters,words[i])
 
-def cluster_to_list(vocab,clusters,words):
+    return out 
 
-    out=dict()
-    for i in words:
-        out[i]=cluster_of_word(vocab,clusters,i)
+def classification_clusters(dic_clusters):
 
-    return out
+    """dic_cluster: diccionario con las palabras por cluster generado por dic_cluster
+        dic_out = diccionario con los clusters clasificados
+        Recibe un diccionario de clusters generado con dict_cluster,
+        entrega un diccionario con los clusters clasificados.
+    """
+    dic_out = {'positivo':[],'negativo':[],'neutro':[]}
+
+    print('p = positivo, n = negativo y a = no emocional')
+    pregunta = input('¿Listo para clasificar los clusters en esas categorias? y/n: ')
+    if (pregunta !='y'):
+        return
+    for i in list(dic_clusters.keys()):
+        print(dic_clusters[i])
+        tipo = input('¿Es del tipo p/n/a?: ')
+        if (tipo=='p'):
+            dic_out['positivo'].append(i)
+        elif (tipo=='n'):
+            dic_out['negativo'].append(i)
+        elif (tipo=='a'):
+            dic_out['neutro'].append(i)        
+        else:
+            print(f'Error, cluster {str(i)} no clasificado')
+
+    return dic_out
+            
 
 
 def map_sentiment(func,sentiments):
@@ -215,8 +264,6 @@ def map_sentiment(func,sentiments):
             suma+=func[i]
         out[sentiment]=suma/cant
     return out
-
-
 
 
 

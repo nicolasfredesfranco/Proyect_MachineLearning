@@ -34,7 +34,7 @@ def signed_laplacian(affinity):
     _setdiag_dense(m, 1 - isolated_node_mask)
     return m, w
 
-def signal_spectral_embedding(affinity,random_state=None,n_clusters=2,eigen_tol=0.0):
+def signed_spectral_embedding(affinity,random_state=None,n_clusters=2,eigen_tol=0.0):
 
 
     """
@@ -57,9 +57,9 @@ def signal_spectral_embedding(affinity,random_state=None,n_clusters=2,eigen_tol=
     embedding=_deterministic_vector_sign_flip(embedding)
     return embedding[:n_clusters].T
 
-def signal_spectral_clustering(affinity,random_state=None,n_clusters=2,eigen_tol=0.0):
+def signed_spectral_clustering(affinity,random_state=None,n_clusters=2,eigen_tol=0.0):
 
-    maps=signal_spectral_embedding(affinity,random_state,n_clusters,eigen_tol)
+    maps=signed_spectral_embedding(affinity,random_state,n_clusters,eigen_tol)
     clusters=discretize(maps,random_state=random_state)
     return clusters    
         

@@ -134,8 +134,7 @@ def ptext(text):
             for i in words_sw:
                 
                 word=pword(i)
-                if word in frec_words.keys():
-                    words.append(word)
+                words.append(word)
 
             if len(words)!=0:            
                 output.append(words)

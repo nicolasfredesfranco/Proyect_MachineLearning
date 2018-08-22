@@ -8,7 +8,7 @@ from ppsing import sin_ant
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_kernels
 import pickle
-
+import scipy.spatial.distance as sp
 
 
 def T_syn_ant(vocab):

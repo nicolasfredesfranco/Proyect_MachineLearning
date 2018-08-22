@@ -95,7 +95,7 @@ def links_clusters (affinity,labels,senti_labels=None):
 
 
 
-def simCluster (affinity,vocab,sentences,links):
+def simCluster (vocab,sentences,links):
     """
     Calcula un diccionario, que guarda los siguientes funcionales:
         S+(A,Ci)=links+(A,Ci)/vol(Ci)+links-(A,Ci^c)/vol(Ci^c)
@@ -111,6 +111,9 @@ def simCluster (affinity,vocab,sentences,links):
         Ejemplo: functional[C_i]=[S+(A,C_i),S-(A,C_i)]
     """
     functional = dict()
+    output = dict()
+    for i in links.keys():
+        output[i]=0.0
     #vol_A=0
 
     cant_a=0
@@ -147,7 +150,6 @@ def simCluster (affinity,vocab,sentences,links):
             continue
             #print(frase)
 
-    output=dict()
     for label in functional:
         cant_0_1 = 1
         cant_1_1 = 1
@@ -179,22 +181,12 @@ def distribution(clusters):
 
   
 def position(functional):
-    """A partir de functional, obtiene el cluster mejor representa a una frase.
-    """
-    n = np.max(list(functional.keys()))
-    list_neg = [0]*n
-    list_pos = [0]*n
-    for i in functional.keys():
-        for j in functional.keys():
-            if(functional[j][0] >= functional[i][0]):
-                list_pos[i-1] += 1
-            if(functional[j][1] >= functional[i][1]):
-                list_neg[i-1] += 1
+    lista=list()
+    for label,valor in functional.items():
+        lista.append((valor,label))
+    lista.sort()
+    return lista[-1][1]
 
-    result = np.array(list_neg) - np.array(list_pos)
-
-    return np.argmax(result)
- 
 def dict_cluster(vocab, clusters):
     """Crea dicionario con keys = cluster 
         y value = lista de palabras del cluster.
